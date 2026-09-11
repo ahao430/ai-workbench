@@ -2,6 +2,8 @@
 
 桌面 AI 工作台（macOS / Windows）：一站式聚合 AI 网关（NewAPI）、聊天、画图、修图、笔记、知识库（语雀/WeKnora）、云效 DevOps 与第三方 AI 供应商。
 
+[主页](https://ahao430.github.io/ai-workbench/)
+
 技术栈：**Tauri 2 + React 18 + TypeScript + antd v5 + Tailwind CSS + Zustand + SQLite（tauri-plugin-sql / rusqlite）**
 
 ## 功能概览
@@ -56,7 +58,7 @@ cd src-tauri && cargo check / cargo test   # Rust 侧检查与测试
 npm run tauri build
 ```
 
-推 `v*` tag 自动构建三平台（Windows x64 NSIS / macOS arm64 dmg / macOS x64 dmg）发布到 GitHub Releases（latest.json 由工作流自动生成）。下载页 `docs/index.html` 通过 GitHub Pages 静态部署：https://ahao430.github.io/ai-workbench/
+推 `v*` tag 自动构建三平台（Windows x64 NSIS / macOS arm64 dmg / macOS x64 dmg）发布到 GitHub Releases（latest.json 由工作流自动生成）。下载页 `docs/index.html` 通过 GitHub Pages 静态部署。
 
 ## 目录结构
 
