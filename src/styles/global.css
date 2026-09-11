@@ -1,0 +1,197 @@
+@tailwind components;
+@tailwind utilities;
+
+/* preflight 已关闭（与 antd 共存），基础样式手动补齐 */
+/* box-sizing 是 preflight 最关键的一条：缺失时 w-full 与 px-* 叠加会把容器
+   撑出父级，所有"单列容器 + 左右内边距"的页面都会出现横向滚动条 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* preflight 已关闭：原生 button 的系统默认灰底/边框需要手动清零，
+   否则裸 <button>（如侧栏收起按钮、首页胶囊按钮）会带灰色背景 */
+button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: rgba(120, 120, 140, 0.35);
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* bytemd 编辑器/预览：长表格、代码块、长 URL 不撑破容器 */
+.bytemd {
+  height: 100%;
+}
+.markdown-body {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.markdown-body pre,
+.markdown-body table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.markdown-body img {
+  max-width: 100%;
+}
+
+/* 语雀目录树：连接 Collapse 内嵌的子空间 Collapse 更紧凑 */
+.yuque-owner-tree.ant-collapse-ghost > .ant-collapse-item > .ant-collapse-header {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.yuque-owner-tree.ant-collapse-ghost > .ant-collapse-item > .ant-collapse-content > .ant-collapse-content-box {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* 聊天/Agent 气泡内 markdown：主题底色交给气泡自身，md-body 透明 */
+.chat-md .md-body {
+  background: transparent;
+}
+
+/* 子系统页：Tabs 撑满剩余高度，内嵌 iframe 填满面板 */
+.daye-tabs.ant-tabs {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.daye-tabs .ant-tabs-nav {
+  margin-bottom: 8px;
+}
+.daye-tabs .ant-tabs-content-holder {
+  flex: 1;
+  min-height: 0;
+}
+.daye-tabs .ant-tabs-content,
+.daye-tabs .ant-tabs-tabpane {
+  height: 100%;
+}
+
+/* 图表页：Tabs 撑满 Splitter 左面板，画布/配置编辑器的高度链不能断
+   （tabpane 高度 auto 会让 echarts.init 拿到 0 高度容器，配置编辑器也压扁） */
+.charts-tabs.ant-tabs {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.charts-tabs .ant-tabs-nav {
+  margin-bottom: 8px;
+}
+.charts-tabs .ant-tabs-content-holder {
+  flex: 1;
+  min-height: 0;
+}
+.charts-tabs .ant-tabs-content,
+.charts-tabs .ant-tabs-tabpane {
+  height: 100%;
+}
+
+/* 看板卡片 Spotlight 高光（参考 React Bits Spotlight Card）：鼠标位置经
+   --mx/--my 传入，::after 叠一层跟随径向高光；hover 才亮，平时零渲染成本 */
+.spot-card {
+  position: relative;
+}
+.spot-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(99, 102, 241, 0.14),
+    transparent 65%
+  );
+}
+.spot-card:hover::after {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .spot-card::after {
+    transition: none;
+  }
+}
+
+/* 看板 hero 入场（一次性） */
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-in {
+  animation: hero-in 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-in {
+    animation: none;
+  }
+}
+
+/* 自定义鼠标光标：靛蓝描边白色主体（配主题色 #6366f1）。
+   位图 PNG 而非 SVG——WKWebView(Safari 内核) 不支持 SVG cursor；
+   30px 显示尺寸与系统光标接近。fallback 保留系统样式 */
+:root {
+  --cur-default: url('/cursors/cursor-default.png') 4 4, default;
+  --cur-pointer: url('/cursors/cursor-pointer.png') 15 15, pointer;
+  --cur-text: url('/cursors/cursor-text.png') 15 15, text;
+}
+body {
+  cursor: var(--cur-default);
+}
+button,
+a,
+[role='button'],
+[role='switch'],
+[role='tab'],
+[role='menuitem'],
+[role='option'],
+[role='checkbox'],
+[role='radio'],
+summary {
+  cursor: var(--cur-pointer);
+}
+input,
+textarea,
+[contenteditable='true'] {
+  cursor: var(--cur-text);
+}

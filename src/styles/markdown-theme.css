@@ -1,0 +1,172 @@
+/**
+ * Markdown 预览主题（全部限定在 .md-body 作用域，多主题类共存不互相污染）。
+ * 结构规则（标题/表格/代码块…）统一写在 .md-body 上、颜色走 CSS 变量；
+ * 每个主题类只覆盖变量 + 各自的 hljs 代码配色（取自 highlight.js 官方对应主题）。
+ */
+
+/* ── 结构 + 默认变量（= GitHub 浅色）────────────────────────────── */
+.md-body {
+  --md-bg: transparent;
+  --md-text: #1f2328;
+  --md-heading: #1f2328;
+  --md-link: #0969da;
+  --md-border: #d0d7de;
+  --md-th-bg: #f6f8fa;
+  --md-code-bg: rgba(175, 184, 193, 0.2);
+  --md-code-text: #1f2328;
+  --md-pre-bg: #f6f8fa;
+  --md-quote-border: #d0d7de;
+  --md-quote-text: #59636e;
+  --md-hr: #d8dee4;
+  background: var(--md-bg);
+  color: var(--md-text);
+}
+.md-body h1, .md-body h2, .md-body h3, .md-body h4, .md-body h5, .md-body h6 {
+  color: var(--md-heading);
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.4em 0 0.6em;
+}
+.md-body h1 { font-size: 1.7em; border-bottom: 1px solid var(--md-border); padding-bottom: 0.3em; }
+.md-body h2 { font-size: 1.4em; border-bottom: 1px solid var(--md-border); padding-bottom: 0.3em; }
+.md-body h3 { font-size: 1.2em; }
+.md-body h4 { font-size: 1.05em; }
+.md-body p { margin: 0.6em 0; }
+.md-body a { color: var(--md-link); }
+/* 表格：边框 + 表头底色（display:block 让宽表横向滚动而不撑破窄容器） */
+.md-body table { border-collapse: collapse; display: block; overflow-x: auto; max-width: 100%; margin: 0.8em 0; }
+.md-body th, .md-body td { border: 1px solid var(--md-border); padding: 6px 12px; text-align: left; }
+.md-body th { background: var(--md-th-bg); font-weight: 600; }
+.md-body code {
+  background: var(--md-code-bg);
+  color: var(--md-code-text);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.88em;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+.md-body pre { background: var(--md-pre-bg); padding: 12px 14px; border-radius: 8px; overflow: auto; margin: 0.8em 0; }
+.md-body pre code { background: none; padding: 0; color: inherit; font-size: 0.85em; }
+/* 代码块「复制」按钮：默认隐藏，hover 容器时显隐 */
+.md-body .md-pre-wrap { position: relative; }
+.md-body .md-copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  font-size: 12px;
+  line-height: 1;
+  padding: 3px 8px;
+  border: 1px solid var(--md-border);
+  border-radius: 4px;
+  background: var(--md-th-bg);
+  color: var(--md-text);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.md-body .md-pre-wrap:hover .md-copy-btn { opacity: 0.85; }
+.md-body .md-copy-btn:hover { opacity: 1; }
+.md-body blockquote { border-left: 4px solid var(--md-quote-border); color: var(--md-quote-text); margin: 0.8em 0; padding: 0.1em 1em; }
+.md-body hr { border: none; border-top: 1px solid var(--md-hr); margin: 1.4em 0; }
+.md-body img { max-width: 100%; }
+.md-body ul, .md-body ol { padding-left: 1.6em; margin: 0.6em 0; }
+.md-body li + li { margin-top: 0.25em; }
+.md-body input[type='checkbox'] { margin-right: 0.4em; }
+.md-body > :first-child { margin-top: 0; }
+.md-body > :last-child { margin-bottom: 0; }
+
+/* 默认浅色代码配色（highlight.js github 主题，作用域化；代码块底色来自 --md-pre-bg） */
+.md-body .hljs { color: #24292e; background: transparent; }
+.md-body .hljs-keyword, .md-body .hljs-doctag, .md-body .hljs-type,
+.md-body .hljs-template-tag, .md-body .hljs-template-variable { color: #d73a49; }
+.md-body .hljs-title, .md-body .hljs-title.class_, .md-body .hljs-title.function_ { color: #6f42c1; }
+.md-body .hljs-attr, .md-body .hljs-attribute, .md-body .hljs-literal, .md-body .hljs-meta,
+.md-body .hljs-number, .md-body .hljs-operator, .md-body .hljs-variable,
+.md-body .hljs-selector-attr, .md-body .hljs-selector-class, .md-body .hljs-selector-id { color: #005cc5; }
+.md-body .hljs-string, .md-body .hljs-regexp { color: #032f62; }
+.md-body .hljs-built_in, .md-body .hljs-symbol { color: #e36209; }
+.md-body .hljs-comment, .md-body .hljs-quote, .md-body .hljs-code { color: #6a737d; }
+.md-body .hljs-name, .md-body .hljs-selector-tag, .md-body .hljs-selector-pseudo { color: #22863a; }
+.md-body .hljs-section { color: #005cc5; }
+
+/* ── GitHub Dark ────────────────────────────────────────────── */
+.md-body.t-github-dark {
+  --md-bg: #0d1117;
+  --md-text: #e6edf3;
+  --md-heading: #f0f6fc;
+  --md-link: #4493f8;
+  --md-border: #3d444d;
+  --md-th-bg: #161b22;
+  --md-code-bg: rgba(110, 118, 129, 0.4);
+  --md-code-text: #e6edf3;
+  --md-pre-bg: #161b22;
+  --md-quote-border: #3d444d;
+  --md-quote-text: #9198a1;
+  --md-hr: #3d444d;
+}
+.md-body.t-github-dark .hljs { color: #c9d1d9; }
+.md-body.t-github-dark .hljs-keyword, .md-body.t-github-dark .hljs-doctag,
+.md-body.t-github-dark .hljs-type, .md-body.t-github-dark .hljs-template-variable { color: #ff7b72; }
+.md-body.t-github-dark .hljs-title, .md-body.t-github-dark .hljs-title.function_ { color: #d2a8ff; }
+.md-body.t-github-dark .hljs-attr, .md-body.t-github-dark .hljs-attribute, .md-body.t-github-dark .hljs-literal,
+.md-body.t-github-dark .hljs-meta, .md-body.t-github-dark .hljs-number, .md-body.t-github-dark .hljs-operator,
+.md-body.t-github-dark .hljs-variable { color: #79c0ff; }
+.md-body.t-github-dark .hljs-string, .md-body.t-github-dark .hljs-regexp { color: #a5d6ff; }
+.md-body.t-github-dark .hljs-built_in, .md-body.t-github-dark .hljs-symbol { color: #ffa657; }
+.md-body.t-github-dark .hljs-comment, .md-body.t-github-dark .hljs-quote { color: #8b949e; }
+.md-body.t-github-dark .hljs-name, .md-body.t-github-dark .hljs-selector-tag { color: #7ee787; }
+.md-body.t-github-dark .hljs-section { color: #1f6feb; }
+
+/* ── One Dark（Atom）───────────────────────────────────────── */
+.md-body.t-onedark {
+  --md-bg: #282c34;
+  --md-text: #abb2bf;
+  --md-heading: #d7dae0;
+  --md-link: #61afef;
+  --md-border: #3e4451;
+  --md-th-bg: #2c313a;
+  --md-code-bg: #3e4451;
+  --md-code-text: #abb2bf;
+  --md-pre-bg: #2c313a;
+  --md-quote-border: #5c6370;
+  --md-quote-text: #7f848e;
+  --md-hr: #3e4451;
+}
+.md-body.t-onedark .hljs { color: #abb2bf; }
+.md-body.t-onedark .hljs-comment, .md-body.t-onedark .hljs-quote { color: #5c6370; font-style: italic; }
+.md-body.t-onedark .hljs-keyword, .md-body.t-onedark .hljs-doctag, .md-body.t-onedark .hljs-formula { color: #c678dd; }
+.md-body.t-onedark .hljs-section, .md-body.t-onedark .hljs-name, .md-body.t-onedark .hljs-selector-tag { color: #e06c75; }
+.md-body.t-onedark .hljs-literal { color: #56b6c2; }
+.md-body.t-onedark .hljs-string, .md-body.t-onedark .hljs-regexp, .md-body.t-onedark .hljs-attribute { color: #98c379; }
+.md-body.t-onedark .hljs-attr, .md-body.t-onedark .hljs-variable, .md-body.t-onedark .hljs-type,
+.md-body.t-onedark .hljs-number { color: #d19a66; }
+.md-body.t-onedark .hljs-symbol, .md-body.t-onedark .hljs-bullet, .md-body.t-onedark .hljs-meta,
+.md-body.t-onedark .hljs-title { color: #61afee; }
+.md-body.t-onedark .hljs-built_in, .md-body.t-onedark .hljs-title.class_ { color: #e6c07b; }
+
+/* ── Monokai（Sublime）─────────────────────────────────────── */
+.md-body.t-monokai {
+  --md-bg: #272822;
+  --md-text: #f8f8f2;
+  --md-heading: #f8f8f2;
+  --md-link: #66d9ef;
+  --md-border: #49483e;
+  --md-th-bg: #3e3d32;
+  --md-code-bg: #3e3d32;
+  --md-code-text: #f8f8f2;
+  --md-pre-bg: #1e1f1c;
+  --md-quote-border: #75715e;
+  --md-quote-text: #ccccc0;
+  --md-hr: #49483e;
+}
+.md-body.t-monokai .hljs { color: #ddd; }
+.md-body.t-monokai .hljs-tag, .md-body.t-monokai .hljs-keyword, .md-body.t-monokai .hljs-selector-tag,
+.md-body.t-monokai .hljs-literal, .md-body.t-monokai .hljs-number, .md-body.t-monokai .hljs-name { color: #f92672; }
+.md-body.t-monokai .hljs-code { color: #66d9ef; }
+.md-body.t-monokai .hljs-attribute, .md-body.t-monokai .hljs-attr, .md-body.t-monokai .hljs-symbol,
+.md-body.t-monokai .hljs-regexp { color: #bf79db; }
+.md-body.t-monokai .hljs-string, .md-body.t-monokai .hljs-title, .md-body.t-monokai .hljs-section,
+.md-body.t-monokai .hljs-type, .md-body.t-monokai .hljs-built_in, .md-body.t-monokai .hljs-variable { color: #a6e22e; }
+.md-body.t-monokai .hljs-title.class_ { color: #fff; }
+.md-body.t-monokai .hljs-comment, .md-body.t-monokai .hljs-quote, .md-body.t-monokai .hljs-meta { color: #75715e; }

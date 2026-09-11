@@ -1,0 +1,58 @@
+[package]
+name = "ai-workbench"
+version = "0.3.3"
+description = "AI 工作台桌面端"
+authors = ["ahao430"]
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "ai_workbench_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset", "tray-icon", "macos-private-api", "image-png"] }
+# 托盘菜单栏文字直接画进图标（黑字 + 百分比着色），需要 TTF/OTF 栅格化
+ab_glyph = "0.2"
+# 语雀网页登录密码摘要（官网前端同款 md5 提交）
+md-5 = "0.10"
+# 语雀表格（lakesheet）正文 zlib 解压（sheet 字段为压缩字节串）
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+tauri-plugin-updater = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-notification = "2"
+time = { version = "0.3", features = ["local-offset"] }
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+tauri-plugin-opener = "2"
+# Agent 项目目录选择
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+# 网关/供应商 HTTP（M1+ 使用；统一走 Rust 侧绕过 CORS）
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "native-tls", "stream", "cookies", "multipart"] }
+url = "2"
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "process"] }
+tokio-util = "0.7"
+# 托盘直读工作台库（供应商额度展示）
+rusqlite = { version = "0.32", features = ["bundled", "backup"] }
+regex = "1"
+base64 = "0.22"
+thiserror = "2"
+# Codex config.toml 定向编辑（保留注释与 [mcp_servers] 等）
+toml_edit = "0.22"
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.52"
+
+# 体积优化（打包瘦身基线，M6 验证）
+[profile.release]
+lto = "thin"
+codegen-units = 1
+opt-level = "s"
+strip = true
+panic = "abort"

@@ -1,0 +1,25 @@
+{
+  "identifier": "default",
+  "description": "主窗口默认权限",
+  "windows": ["main", "tray-panel"],
+  "permissions": [
+    "core:default",
+    "core:webview:allow-create-webview-window",
+    "core:window:allow-set-focus",
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "core:window:allow-set-title",
+    "core:window:allow-close",
+    "core:window:allow-is-minimized",
+    "core:window:allow-unminimize",
+    "sql:allow-load",
+    "sql:allow-execute",
+    "sql:allow-select",
+    "sql:allow-close",
+    "opener:default",
+    "updater:default",
+    "opener:allow-open-url",
+    "opener:allow-reveal-item-in-dir",
+    "dialog:default"
+  ]
+}

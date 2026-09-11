@@ -1,0 +1,130 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # macOS Apple Silicon（独立产物，不做 universal 合包以控制体积）
+          # bundles 含 app：生成 .app + updater 签名产物（.app.tar.gz/.sig）；dmg 供分发
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            bundles: app,dmg
+          # macOS Intel：在 Apple Silicon 上交叉编译 x86_64
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            bundles: app,dmg
+          # Windows x64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bundles: nsis
+    runs-on: ${{ matrix.os }}
+    # CI runner 内存小，vite 打包大型前端（Univer/exceljs 等）默认 ~4GB 堆不够会 OOM(134)；
+    # 本地内存大不触发，只有 CI 需要
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build (macOS)
+        if: runner.os == 'macOS'
+        run: npm run tauri build -- --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: npm run tauri build -- --bundles ${{ matrix.bundles }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      # macOS updater 产物默认同名，两个架构会互相覆盖：
+      # 构建后按架构重命名（AI工作台_aarch64.app.tar.gz / AI工作台_x64.app.tar.gz）
+      - name: Rename updater artifacts (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          ARCH=$([ "${{ matrix.target }}" = "aarch64-apple-darwin" ] && echo "aarch64" || echo "x64")
+          DIR="src-tauri/target/${{ matrix.target }}/release/bundle/macos"
+          cd "$DIR"
+          for f in *.app.tar.gz; do
+            [ -f "$f" ] || continue
+            mv "$f" "${f%.app.tar.gz}_${ARCH}.app.tar.gz"
+          done
+          for f in *.app.tar.gz.sig; do
+            [ -f "$f" ] || continue
+            mv "$f" "${f%.app.tar.gz.sig}_${ARCH}.app.tar.gz.sig"
+          done
+
+      # tag 推送时产物直接发布到 GitHub Release（公开仓库全自动，无需 draft）
+      - name: Publish to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/*/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/macos/*.tar.gz
+            src-tauri/target/*/release/bundle/macos/*.tar.gz
+            src-tauri/target/release/bundle/macos/*.sig
+            src-tauri/target/*/release/bundle/macos/*.sig
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/nsis/*.sig
+            src-tauri/target/*/release/bundle/nsis/*.sig
+
+  # 生成 tauri-plugin-updater 格式的 latest.json 并挂到 Release（应用内更新检查的入口）
+  latest-json:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate and upload latest.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          # 从 Release 资产里按后缀找各平台更新包与签名的真实下载地址（资产名含中文与版本号，不硬编码）
+          url_of() { gh api "repos/$REPO/releases/tags/v$TAG" --jq ".assets[] | select(.name | endswith(\"$1\")) | .browser_download_url" | head -1; }
+          sig_of() { gh release download "v$TAG" --repo "$REPO" --pattern "*$1" --output - --clobber 2>/dev/null | tr -d '\n'; }
+          cat > latest.json <<EOF
+          {
+            "version": "${TAG}",
+            "notes": "Release ${TAG}",
+            "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "platforms": {
+              "darwin-aarch64": { "signature": "$(sig_of 'aarch64.app.tar.gz.sig')", "url": "$(url_of 'aarch64.app.tar.gz')" },
+              "darwin-x86_64": { "signature": "$(sig_of 'x64.app.tar.gz.sig')", "url": "$(url_of 'x64.app.tar.gz')" },
+              "windows-x86_64": { "signature": "$(sig_of 'x64-setup.exe.sig')", "url": "$(url_of 'x64-setup.exe')" }
+            }
+          }
+          EOF
+          cat latest.json
+          gh release upload "v$TAG" latest.json --repo "$REPO" --clobber
