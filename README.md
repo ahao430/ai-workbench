@@ -16,7 +16,7 @@
 
 ### macOS
 
-1. 从 [Releases](../../releases) 下载 `.dmg`
+1. 从 [下载页](https://ahao430.github.io/ai-workbench/) 或 [Releases](https://github.com/ahao430/ai-workbench/releases) 下载 `.dmg`
 2. 打开 dmg，将 **AI工作台** 拖入 Applications 文件夹
 3. 首次打开若提示「无法打开，因为无法验证开发者」或「应用已损坏」——这是 Gatekeeper 隔离属性所致（未公证的应用常见），终端执行：
 
@@ -30,7 +30,7 @@
 
 ### Windows
 
-1. 下载 `.exe`（NSIS 安装包）
+1. 从 [下载页](https://ahao430.github.io/ai-workbench/) 或 [Releases](https://github.com/ahao430/ai-workbench/releases) 下载 `.exe`
 2. 双击安装，安装路径默认 `%LOCALAPPDATA%\AI工作台`
 3. 若 SmartScreen 拦截（未签名），点「更多信息 → 仍要运行」
 4. 首次启动同 macOS 初始化向导
@@ -56,14 +56,15 @@ cd src-tauri && cargo check / cargo test   # Rust 侧检查与测试
 npm run tauri build
 ```
 
-推 `v*` tag 自动构建三平台（Windows x64 NSIS / macOS arm64 dmg / macOS x64 dmg）发布到 GitHub Releases（latest.json 由工作流自动生成），并把 `website/` 下载页部署到 GitHub Pages。
+推 `v*` tag 自动构建三平台（Windows x64 NSIS / macOS arm64 dmg / macOS x64 dmg）发布到 GitHub Releases（latest.json 由工作流自动生成）。下载页 `docs/index.html` 通过 GitHub Pages 静态部署：https://ahao430.github.io/ai-workbench/
 
 ## 目录结构
 
 ```
 src/            前端（pages / components / stores / api / db / styles）
 src-tauri/      Rust 核心（gateway / yunxiao / yuque / llm / quota / tray / secrets …）
-website/        下载页（纯静态，发布到 GitHub Pages）
+docs/           下载页（纯静态，GitHub Pages 部署：https://ahao430.github.io/ai-workbench/）
+website/        下载页源文件（与 docs/ 同步）
 docs/           设计与调研文档
 ```
 
