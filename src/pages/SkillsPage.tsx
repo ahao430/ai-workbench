@@ -30,7 +30,7 @@ export default function SkillsPage() {
   // tab 受 URL 控制（#/skills?tab=xxx）
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
-  const activeTab = ['mine', 'local'].includes(tabParam ?? '') ? tabParam! : 'mine'
+  const activeTab = ['mine', 'recommended', 'sources', 'local'].includes(tabParam ?? '') ? tabParam! : 'mine'
   const [skills, setSkills] = useState<Skill[]>([])
   const [targets, setTargets] = useState<SkillTarget[]>([])
   const [loading, setLoading] = useState(false)
