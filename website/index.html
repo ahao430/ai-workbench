@@ -80,23 +80,23 @@
     <div class="card reco" id="card-arm">
       <div class="os">macOS · Apple Silicon</div>
       <div class="arch">M 系列芯片</div>
-      <a class="btn" id="dl-arm" href="#">下载 .dmg</a>
+      <a class="btn" id="dl-arm" href="https://github.com/ahao430/ai-workbench/releases/latest" target="_blank" rel="noreferrer">下载 .dmg</a>
       <div class="size" id="sz-arm"></div>
     </div>
     <div class="card" id="card-intel">
       <div class="os">macOS · Intel</div>
       <div class="arch">x86_64</div>
-      <a class="btn" id="dl-intel" href="#">下载 .dmg</a>
+      <a class="btn" id="dl-intel" href="https://github.com/ahao430/ai-workbench/releases/latest" target="_blank" rel="noreferrer">下载 .dmg</a>
       <div class="size" id="sz-intel"></div>
     </div>
     <div class="card" id="card-win">
       <div class="os">Windows</div>
       <div class="arch">x64 · NSIS 安装包</div>
-      <a class="btn" id="dl-win" href="#">下载 .exe</a>
+      <a class="btn" id="dl-win" href="https://github.com/ahao430/ai-workbench/releases/latest" target="_blank" rel="noreferrer">下载 .exe</a>
       <div class="size" id="sz-win"></div>
     </div>
   </div>
-  <p class="err" id="err">版本信息获取失败，下载链接可能不是最新——请刷新重试</p>
+  <p class="err" id="err">版本信息获取失败（api.github.com 不可达时常见）——按钮已指向 Releases 页，可直接下载</p>
 
   <section>
     <h2>安装说明</h2>
@@ -187,6 +187,8 @@ async function loadHistory(releases) {
     await loadHistory(releases.filter((r) => !r.draft))
   } catch {
     document.getElementById('err').style.display = 'block'
+    document.querySelectorAll('[data-ver]').forEach((e) => (e.textContent = 'Releases'))
+    document.getElementById('hist-list').innerHTML = '<p style="color:#6b7387;font-size:13px;">历史版本获取失败——<a class="hist-link" href="https://github.com/ahao430/ai-workbench/releases" target="_blank" rel="noreferrer">前往 Releases 页查看 →</a></p>'
   }
 })()
 </script>
